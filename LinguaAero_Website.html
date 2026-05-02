@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinguaAero Technologies - Real-Time Translation for Airline Counters</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0F2444;
+    --steel:  #1E4D8C;
+    --sky:    #2E7FD4;
+    --green:  #0E6B45;
+    --gold:   #C49A2A;
+    --cream:  #F8F5EF;
+    --white:  #FFFFFF;
+    --gray:   #6B7280;
+    --light:  #EDF4FC;
+    --dark:   #080F1A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--navy);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%;
+    height: 72px;
+    background: rgba(8,15,26,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+  .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta {
+    background: var(--gold);
+    color: var(--dark) !important;
+    padding: 0.5rem 1.2rem;
+    border-radius: 4px;
+    font-weight: 600 !important;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: var(--dark);
+    position: relative;
+    display: flex; align-items: center;
+    padding: 120px 5% 80px;
+    overflow: hidden;
+  }
+
+  /* Animated background grid */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(46,127,212,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(46,127,212,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 20s linear infinite;
+  }
+  @keyframes gridMove {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(60px); }
+  }
+
+  /* Glow orb */
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(46,127,212,0.18) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    max-width: 680px;
+  }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: rgba(196,154,42,0.15);
+    border: 1px solid rgba(196,154,42,0.3);
+    color: var(--gold);
+    padding: 0.4rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 1.8rem;
+  }
+  .hero-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--sky);
+  }
+
+  .hero-sub {
+    font-size: 1.15rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 540px;
+    font-weight: 300;
+  }
+
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+  }
+
+  .btn-primary {
+    background: var(--sky);
+    color: var(--white);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none; cursor: pointer;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover { background: #2470bc; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.2);
+    cursor: pointer;
+  }
+  .btn-outline:hover { border-color: rgba(255,255,255,0.5); color: var(--white); }
+
+  .hero-stats {
+    display: flex; gap: 2.5rem; flex-wrap: wrap;
+  }
+  .hero-stat {}
+  .hero-stat .num {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--white);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.3rem;
+  }
+  .hero-stat .lbl {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 500;
+  }
+
+  /* Hero right - counter illustration */
+  .hero-visual {
+    position: absolute;
+    right: 5%; top: 50%;
+    transform: translateY(-50%);
+    width: 480px;
+    z-index: 2;
+  }
+
+  .counter-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 2rem;
+    backdrop-filter: blur(20px);
+    position: relative;
+  }
+
+  .counter-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .counter-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .status-dot {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; color: #4ade80;
+  }
+  .status-dot::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: #4ade80;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .bubble-row {
+    display: flex; gap: 1rem; margin-bottom: 1rem;
+  }
+  .bubble {
+    padding: 0.8rem 1.1rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    max-width: 75%;
+  }
+  .bubble-passenger {
+    background: rgba(46,127,212,0.2);
+    border: 1px solid rgba(46,127,212,0.3);
+    color: #93c5fd;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+  }
+  .bubble-staff {
+    background: rgba(14,107,69,0.2);
+    border: 1px solid rgba(14,107,69,0.3);
+    color: #6ee7b7;
+    border-bottom-left-radius: 4px;
+  }
+  .bubble-label {
+    font-size: 0.65rem;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.3rem;
+  }
+
+  .latency-bar {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 1rem;
+  }
+  .latency-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+  .latency-track {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .latency-fill {
+    height: 100%;
+    width: 20%;
+    background: linear-gradient(90deg, var(--sky), #4ade80);
+    border-radius: 2px;
+    animation: latencyFill 2s ease-out infinite;
+  }
+  @keyframes latencyFill {
+    0%   { width: 0%; }
+    60%  { width: 20%; }
+    100% { width: 20%; }
+  }
+  .latency-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    color: #4ade80;
+    white-space: nowrap;
+  }
+
+  /* Lang badges floating */
+  .lang-badge {
+    position: absolute;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    font-family: 'DM Mono', monospace;
+    animation: float 4s ease-in-out infinite;
+  }
+  .lang-badge-1 { top: -20px; left: 20px; animation-delay: 0s; }
+  .lang-badge-2 { top: -20px; right: 30px; animation-delay: 1s; }
+  .lang-badge-3 { bottom: -16px; left: 40px; animation-delay: 2s; }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  /* ── LOGOS STRIP ── */
+  .logos-strip {
+    background: var(--cream);
+    padding: 2.5rem 5%;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .logos-label {
+    text-align: center;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+  .logos-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 3rem; flex-wrap: wrap;
+  }
+  .logo-item {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: rgba(0,0,0,0.25);
+    letter-spacing: -0.01em;
+    transition: color 0.2s;
+  }
+  .logo-item:hover { color: var(--navy); }
+
+  /* ── SECTION BASE ── */
+  section { padding: 100px 5%; }
+
+  .section-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--sky);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.2rem;
+  }
+
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--gray);
+    line-height: 1.7;
+    max-width: 560px;
+    font-weight: 300;
+  }
+
+  /* ── PROBLEM SECTION ── */
+  .problem { background: var(--navy); }
+  .problem .section-title { color: var(--white); }
+  .problem .section-sub { color: rgba(255,255,255,0.55); }
+  .problem .section-tag { color: var(--gold); }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .problem-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.8rem;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sky), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .problem-card:hover { border-color: rgba(46,127,212,0.3); transform: translateY(-2px); }
+  .problem-card:hover::before { opacity: 1; }
+
+  .problem-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .problem-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+  .problem-card p {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.65;
+  }
+
+  .stat-highlight {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--gold);
+    background: rgba(196,154,42,0.12);
+    border: 1px solid rgba(196,154,42,0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-top: 0.8rem;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how { background: var(--cream); }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-top: 4rem;
+    position: relative;
+  }
+  .steps::before {
+    content: '';
+    position: absolute;
+    top: 28px; left: 10%; right: 10%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--sky), var(--green));
+    z-index: 0;
+  }
+
+  .step {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+    padding: 0 1rem;
+    position: relative; z-index: 1;
+  }
+  .step-num {
+    width: 56px; height: 56px;
+    background: var(--navy);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--white);
+    margin-bottom: 1.2rem;
+    border: 3px solid var(--cream);
+    box-shadow: 0 0 0 2px var(--sky);
+  }
+  .step h4 {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.5rem;
+  }
+  .step p {
+    font-size: 0.78rem;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ── FEATURES ── */
+  .features { background: var(--white); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3.5rem;
+  }
+
+  .feature-card {
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.07);
+    transition: all 0.3s;
+    position: relative;
+  }
+  .feature-card:hover {
+    border-color: var(--sky);
+    box-shadow: 0 8px 32px rgba(46,127,212,0.1);
+    transform: translateY(-3px);
+  }
+  .feature-card .icon {
+    width: 48px; height: 48px;
+    background: var(--light);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .feature-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+  .feature-card p {
+    font-size: 0.875rem;
+    color: var(--gray);
+    line-height: 1.65;
+  }
+
+  /* ── DEPLOYMENT ── */
+  .deployment { background: var(--dark); }
+  .deployment .section-title { color: var(--white); }
+  .deployment .section-sub { color: rgba(255,255,255,0.55); }
+  .deployment .section-tag { color: var(--gold); }
+
+  .deploy-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+
+  .deploy-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.8rem 1.5rem;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .deploy-card:hover {
+    background: rgba(46,127,212,0.08);
+    border-color: rgba(46,127,212,0.3);
+  }
+  .deploy-icon { font-size: 2rem; margin-bottom: 1rem; display: block; }
+  .deploy-card h4 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+  .deploy-card p {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.6;
+  }
+
+  /* ── PRICING ── */
+  .pricing { background: var(--cream); }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3.5rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .pricing-card {
+    background: var(--white);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 16px;
+    padding: 2.2rem 1.8rem;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.1); }
+  .pricing-card.featured {
+    background: var(--navy);
+    border-color: var(--navy);
+    transform: scale(1.03);
+  }
+  .pricing-card.featured:hover { transform: scale(1.03) translateY(-4px); }
+  .featured-tag {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--gold);
+    color: var(--dark);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.8rem;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 1rem;
+  }
+  .pricing-card.featured .plan-name { color: rgba(255,255,255,0.5); }
+
+  .plan-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 500;
+    color: var(--navy);
+    margin-bottom: 0.3rem;
+    line-height: 1;
+  }
+  .pricing-card.featured .plan-price { color: var(--white); }
+
+  .plan-period {
+    font-size: 0.78rem;
+    color: var(--gray);
+    margin-bottom: 1.5rem;
+  }
+  .pricing-card.featured .plan-period { color: rgba(255,255,255,0.45); }
+
+  .plan-features {
+    list-style: none;
+    margin-bottom: 1.8rem;
+  }
+  .plan-features li {
+    font-size: 0.85rem;
+    color: var(--gray);
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .pricing-card.featured .plan-features li {
+    color: rgba(255,255,255,0.65);
+    border-bottom-color: rgba(255,255,255,0.06);
+  }
+  .plan-features li::before {
+    content: '✓';
+    color: var(--green);
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+  .pricing-card.featured .plan-features li::before { color: var(--gold); }
+
+  .plan-btn {
+    display: block;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+  .plan-btn-outline {
+    border: 1.5px solid rgba(0,0,0,0.15);
+    color: var(--navy);
+    background: transparent;
+  }
+  .plan-btn-outline:hover { border-color: var(--sky); color: var(--sky); }
+  .plan-btn-fill {
+    background: var(--gold);
+    color: var(--dark);
+  }
+  .plan-btn-fill:hover { background: #b8891f; }
+
+  /* ── PILOT CTA ── */
+  .pilot-cta {
+    background: linear-gradient(135deg, var(--steel) 0%, var(--navy) 60%, #0a1628 100%);
+    text-align: center;
+    padding: 100px 5%;
+    position: relative;
+    overflow: hidden;
+  }
+  .pilot-cta::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .pilot-cta-inner { position: relative; z-index: 1; }
+  .pilot-cta h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .pilot-cta p {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 2.5rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.7;
+  }
+  .pilot-note {
+    margin-top: 1.2rem;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.35);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--dark);
+    padding: 4rem 5% 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-brand .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .footer-brand .logo span { color: var(--gold); }
+  .footer-brand p {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.7;
+    max-width: 280px;
+  }
+  .footer-col h5 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 1rem;
+  }
+  .footer-col a {
+    display: block;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    margin-bottom: 0.6rem;
+    transition: color 0.2s;
+  }
+  .footer-col a:hover { color: var(--white); }
+  .footer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.25);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .hero-visual { display: none; }
+    .problem-grid { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
+    .steps::before { display: none; }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .deploy-grid { grid-template-columns: 1fr 1fr; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .pricing-card.featured { transform: none; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Lingua<span>Aero</span></div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#pilot" class="nav-cta">Request Pilot</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">Now Accepting Pilot Applications</div>
+    <h1>
+      The language barrier<br>
+      at your counter<br>
+      <em>ends today.</em>
+    </h1>
+    <p class="hero-sub">
+      LinguaAero translates spoken conversations between airline staff and passengers in real time — 133 languages, under one second, zero effort from the passenger.
+    </p>
+    <div class="hero-actions">
+      <a href="#pilot" class="btn-primary">Apply for Pilot Program</a>
+      <a href="#how" class="btn-outline">See How It Works</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num">133</span>
+        <span class="lbl">Languages</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">&lt;1s</span>
+        <span class="lbl">Latency</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">PKR 0</span>
+        <span class="lbl">New Hardware</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">9.5B</span>
+        <span class="lbl">Passengers Served Globally</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Counter mockup -->
+  <div class="hero-visual">
+    <div class="counter-card">
+      <div class="lang-badge lang-badge-1">zh-CN  →  en-US</div>
+      <div class="lang-badge lang-badge-2">ur-PK  →  en-US</div>
+      <div class="lang-badge lang-badge-3">ar-SA  →  en-US</div>
+
+      <div class="counter-header">
+        <span class="counter-label">Counter 07  ·  Karachi JIAP</span>
+        <span class="status-dot">System Active</span>
+      </div>
+
+      <div class="bubble-row">
+        <div class="bubble bubble-passenger">
+          <div class="bubble-label">Passenger (Mandarin)</div>
+          我的行李超重了
+        </div>
+      </div>
+
+      <div class="bubble-row">
+        <div class="bubble bubble-staff">
+          <div class="bubble-label">Staff (English) — Translated</div>
+          My luggage is overweight.
+        </div>
+      </div>
+
+      <div class="bubble-row">
+        <div class="bubble bubble-staff" style="margin-left: auto; background: rgba(14,107,69,0.15);">
+          <div class="bubble-label">Staff replies (English)</div>
+          You need to pay PKR 3,000.
+        </div>
+      </div>
+
+      <div class="bubble-row">
+        <div class="bubble bubble-passenger" style="margin-left: 0;">
+          <div class="bubble-label">Passenger hears (Mandarin)</div>
+          您需要支付3000卢比。
+        </div>
+      </div>
+
+      <div class="latency-bar">
+        <span class="latency-label">Response time</span>
+        <div class="latency-track"><div class="latency-fill"></div></div>
+        <span class="latency-val">0.9s</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS STRIP -->
+<div class="logos-strip">
+  <p class="logos-label">Trusted target deployment partners</p>
+  <div class="logos-row">
+    <span class="logo-item">Pakistan International Airlines</span>
+    <span class="logo-item">Fly Jinnah</span>
+    <span class="logo-item">AirBlue</span>
+    <span class="logo-item">SereneAir</span>
+    <span class="logo-item">PAA</span>
+    <span class="logo-item">CAA Pakistan</span>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <span class="section-tag">The Problem</span>
+  <h2 class="section-title">A billion-dollar industry,<br>solved with hand gestures.</h2>
+  <p class="section-sub">Language barriers at airline counters are daily, damaging, and completely unsolved. Every workaround in use today is inadequate.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card">
+      <span class="problem-icon">✈️</span>
+      <h3>9.5 Billion Passengers. One Language.</h3>
+      <p>Global air traffic reached 9.5 billion in 2024, growing toward 19.5 billion by 2042. The majority of that growth comes from non-English-speaking Asia-Pacific, Middle Eastern, and African markets.</p>
+      <span class="stat-highlight">31.7% of global traffic from Asia-Pacific alone</span>
+    </div>
+    <div class="problem-card">
+      <span class="problem-icon">🧳</span>
+      <h3>Pakistan: 727,000 Workers Fly Gulf Routes Every Year</h3>
+      <p>Over 727,000 Pakistani workers migrated to Gulf countries in 2024, the majority from the labour class with limited Arabic proficiency. They face language barriers at every counter from departure to arrival.</p>
+      <span class="stat-highlight">96% headed to Arabic-speaking Gulf countries</span>
+    </div>
+    <div class="problem-card">
+      <span class="problem-icon">🌍</span>
+      <h3>Pakistan Tourism Growing at 11% Per Year</h3>
+      <p>Pakistan welcomed nearly 1 million international tourists in 2024, with the tourism market projected to reach USD 7.28 billion by 2030. These visitors speak dozens of languages and interact at every airport counter.</p>
+      <span class="stat-highlight">115% increase in tourist arrivals in 2023</span>
+    </div>
+    <div class="problem-card">
+      <span class="problem-icon">⚠️</span>
+      <h3>70% of Aviation Incidents Involve Communication Failure</h3>
+      <p>Billings and Reynard (1981) found communication failures in 70% of aviation incidents. ICAO attributes over 1,100 deaths to language-related failures across aviation touchpoints between 1976 and 2000.</p>
+      <span class="stat-highlight">Language barriers are a safety issue, not just a service issue</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <span class="section-tag">How It Works</span>
+  <h2 class="section-title">Five steps. Under one second.</h2>
+  <p class="section-sub">LinguaAero runs on the existing counter computer. No new machines. No passenger setup. No training overhaul.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <h4>Passenger Speaks</h4>
+      <p>Passenger speaks naturally in their language into the passenger-side microphone.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <h4>Speech to Text</h4>
+      <p>Google Cloud STT converts audio to text in real time with automatic language detection.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <h4>Neural Translation</h4>
+      <p>Google NMT translates to the staff's language in under 200 milliseconds.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <h4>Audio Output</h4>
+      <p>Translated audio plays through the staff-side speaker in natural-sounding voice.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">05</div>
+      <h4>Staff Replies</h4>
+      <p>Same pipeline in reverse. Staff responds, passenger hears it in their language.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <span class="section-tag">Features</span>
+  <h2 class="section-title">Built for counters.<br>Not consumer apps.</h2>
+  <p class="section-sub">Every design decision was made for the airline counter environment, not the general consumer market.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="icon">🌐</div>
+      <h3>133 Languages Simultaneously</h3>
+      <p>Covers every major passenger language including Mandarin, Arabic, Urdu, Hindi, French, Swahili, and 127 more. No configuration per counter required.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">⚡</div>
+      <h3>Under One Second Latency</h3>
+      <p>The full speech-to-translation-to-audio pipeline completes in under one second using the paid Google Cloud API, enabling natural conversational flow.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🖥️</div>
+      <h3>Uses Your Existing Hardware</h3>
+      <p>Runs on any Windows or Mac counter computer. Only additional hardware is two USB microphones and two speakers, totaling PKR 57,200 per counter.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔒</div>
+      <h3>GDPR and PDPA Compliant</h3>
+      <p>No voice data is stored or retained. All processing is encrypted end-to-end. Fully compliant with Pakistan's PDPA and EU GDPR requirements.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📊</div>
+      <h3>Airline Admin Dashboard</h3>
+      <p>Real-time usage analytics, language interaction data, counter configuration management, and monthly billing reports in one web portal.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔄</div>
+      <h3>Replay and Confidence Scoring</h3>
+      <p>Staff can replay any translation instantly. Every translation shows a confidence score, allowing staff to request repetition when needed.</p>
+    </div>
+  </div>
+</section>
+
+<!-- DEPLOYMENT -->
+<section class="deployment" id="deployment">
+  <span class="section-tag">Where It Deploys</span>
+  <h2 class="section-title" style="color:white;">Not just check-in.<br>Every passenger counter.</h2>
+  <p class="section-sub">LinguaAero works at any counter where passengers interact with staff. One system, every touchpoint.</p>
+
+  <div class="deploy-grid">
+    <div class="deploy-card">
+      <span class="deploy-icon">🛫</span>
+      <h4>Check-In Counters</h4>
+      <p>The primary use case. Baggage, boarding passes, seat selection, document verification.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">🛂</span>
+      <h4>Immigration Assistance Desks</h4>
+      <p>Passenger inquiries at immigration entry points where language barriers cause the longest delays.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">ℹ️</span>
+      <h4>Information Counters</h4>
+      <p>Gate queries, transit assistance, flight status, and general passenger guidance across terminals.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">🧳</span>
+      <h4>Baggage Claim Desks</h4>
+      <p>Lost luggage reports, delayed baggage coordination, and special handling requests.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">🛍️</span>
+      <h4>Duty Free Shops</h4>
+      <p>Product inquiries, customs allowances, and purchase assistance for international shoppers.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">🚗</span>
+      <h4>Car Rental Counters</h4>
+      <p>Booking confirmation, insurance explanations, and vehicle handover across language barriers.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">🏨</span>
+      <h4>Hotel Booking Desks</h4>
+      <p>Transit hotel reservations and airport accommodation assistance for international arrivals.</p>
+    </div>
+    <div class="deploy-card">
+      <span class="deploy-icon">🏥</span>
+      <h4>Medical and Special Assistance</h4>
+      <p>Wheelchair requests, medical needs communication, and special passenger services.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <span class="section-tag">Pricing</span>
+  <h2 class="section-title" style="text-align:center;">Cheaper than hiring.<br>Better than guessing.</h2>
+  <p class="section-sub" style="text-align:center; margin: 0 auto 0;">Two bilingual staff cost PKR 1,440,000 per year and cover 2 languages. LinguaAero costs PKR 1,176,000 and covers 133.</p>
+
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">PKR 55,000</div>
+      <div class="plan-period">per counter / per month</div>
+      <ul class="plan-features">
+        <li>Up to 15 languages</li>
+        <li>STT, NMT, TTS pipeline</li>
+        <li>Basic usage dashboard</li>
+        <li>Email support</li>
+        <li>Standard onboarding</li>
+      </ul>
+      <a href="#pilot" class="plan-btn plan-btn-outline">Get Started</a>
+    </div>
+
+    <div class="pricing-card featured">
+      <div class="featured-tag">Most Popular</div>
+      <div class="plan-name">Professional</div>
+      <div class="plan-price">PKR 85,000</div>
+      <div class="plan-period">per counter / per month</div>
+      <ul class="plan-features">
+        <li>Up to 60 languages</li>
+        <li>Full STT, NMT, TTS pipeline</li>
+        <li>Advanced analytics dashboard</li>
+        <li>Priority support</li>
+        <li>Quarterly business reviews</li>
+        <li>99.5% uptime SLA</li>
+      </ul>
+      <a href="#pilot" class="plan-btn plan-btn-fill">Start Pilot Free</a>
+    </div>
+
+    <div class="pricing-card">
+      <div class="plan-name">Enterprise</div>
+      <div class="plan-price">PKR 120,000</div>
+      <div class="plan-period">per counter / per month</div>
+      <ul class="plan-features">
+        <li>133+ languages and custom</li>
+        <li>Custom phrase cache library</li>
+        <li>Dedicated account manager</li>
+        <li>Written SLA guarantee</li>
+        <li>On-site response commitment</li>
+        <li>Volume discounts available</li>
+      </ul>
+      <a href="#pilot" class="plan-btn plan-btn-outline">Contact Sales</a>
+    </div>
+  </div>
+</section>
+
+<!-- PILOT CTA -->
+<section class="pilot-cta" id="pilot">
+  <div class="pilot-cta-inner">
+    <h2>15 counter units.<br>At cost price. Your airport first.</h2>
+    <p>We are offering our first 15 pilot counter units at hardware cost only in exchange for a 6-month subscription commitment and permission to publish the results. No risk. Full Professional tier. Real performance data.</p>
+    <a href="mailto:muhammad.annas.av@gmail.com" class="btn-primary" style="display:inline-block;">Apply for the Pilot Program</a>
+    <p class="pilot-note">Hardware at cost PKR 59,400 per unit  ·  Professional tier subscription  ·  30-day hypercare included</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="logo">Lingua<span>Aero</span></span>
+      <p>Real-time AI translation for airline counters and every passenger-facing service point in the airport. Built in Pakistan. Scaling to the Gulf.</p>
+    </div>
+    <div class="footer-col">
+      <h5>Product</h5>
+      <a href="#how">How It Works</a>
+      <a href="#features">Features</a>
+      <a href="#deployment">Where It Deploys</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <a href="#">About LinguaAero</a>
+      <a href="#">Research Paper</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+    <div class="footer-col">
+      <h5>Contact</h5>
+      <a href="mailto:muhammad.annas.av@gmail.com">muhammad.annas.av@gmail.com</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">Air University Multan</a>
+      <a href="#">Multan, Pakistan</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 LinguaAero Technologies (Pvt.) Ltd. All rights reserved.</span>
+    <span>Built at Air University Multan Campus  ·  Powered by Google NMT</span>
+  </div>
+</footer>
+
+</body>
+</html>
